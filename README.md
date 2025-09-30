@@ -9,7 +9,7 @@
 </br>
 [Yujie Zhou*](https://github.com/YujieOuO/),
 [Pengyang Ling*](https://github.com/LPengYang/),
-[Jiazi Bu*](https://github.com/Bujiazi/),
+[Jiazi Bu*](https://bujiazi.github.io/),
 [Yibin Wang](https://codegoat24.github.io/),
 [Yuhang Zang](https://yuhangzang.github.io/),
 [Jiaqi Wang<sup>†</sup>](https://myownskyw7.github.io/),
