@@ -2,16 +2,10 @@
 
 <details><summary>Click for the full abstract of Light-A-Video</summary>
 
-> The integration of online reinforcement learning (RL) into diffusion and flow models has recently emerged as a promising approach for aligning generative models with human preferences. Stochastic sampling via Stochastic Differential Equations (SDE) is employed during the denoising process
-to generate diverse denoising directions for RL exploration. While existing methods effectively explore potential high-value samples,
-they suffer from sub-optimal preference alignment due to sparse and narrow reward signals. To address these challenges, we propose a novel \textbf{G}ranular-\textbf{GRPO} ($\text{G}^2$RPO ) framework that achieves precise and comprehensive reward assessments of sampling directions in reinforcement learning of flow models. Specifically, a \textit{Singular Stochastic Sampling} strategy is introduced to support step-wise stochastic exploration 
-while enforcing a high correlation between the reward and the injected noise, thereby facilitating a faithful reward for each SDE perturbation.
-Concurrently, to eliminate the bias inherent in fixed-granularity denoising, we introduce a \textit{Multi-Granularity Advantage Integration} module 
-that aggregates advantages computed at multiple diffusion scales, producing a more comprehensive and robust evaluation of the sampling directions.
-Experiments conducted on various reward models, including both in-domain and out-of-domain evaluations, demonstrate that our $\text{G}^2$RPO significantly outperforms existing flow-based GRPO baselines, highlighting its effectiveness and robustness.
+> The integration of online reinforcement learning (RL) into diffusion and flow models has recently emerged as a promising approach for aligning generative models with human preferences. Stochastic sampling via Stochastic Differential Equations (SDE) is employed during the denoising process to generate diverse denoising directions for RL exploration. While existing methods effectively explore potential high-value samples, they suffer from sub-optimal preference alignment due to sparse and narrow reward signals. To address these challenges, we propose a novel **G**ranular-**GRPO** (G²RPO) framework that achieves precise and comprehensive reward assessments of sampling directions in reinforcement learning of flow models. Specifically, a *Singular Stochastic Sampling* strategy is introduced to support step-wise stochastic exploration while enforcing a high correlation between the reward and the injected noise, thereby facilitating a faithful reward for each SDE perturbation. Concurrently, to eliminate the bias inherent in fixed-granularity denoising, we introduce a *Multi-Granularity Advantage Integration* module that aggregates advantages computed at multiple diffusion scales, producing a more comprehensive and robust evaluation of the sampling directions. Experiments conducted on various reward models, including both in-domain and out-of-domain evaluations, demonstrate that our G²RPO significantly outperforms existing flow-based GRPO baselines, highlighting its effectiveness and robustness.
 </details>
 
-**[$\text{G}^2$RPO: Granular GRPO for Precise Reward in Flow Models]()** 
+**[G²RPO: Granular GRPO for Precise Reward in Flow Models]()** 
 </br>
 [Yujie Zhou*](https://github.com/YujieOuO/),
 [Pengyang Ling*](https://github.com/LPengYang/),
@@ -42,6 +36,7 @@ We show more results in the [Project Page](https://github.com/bcmi/Granular-GRPO
 <div align="center">
     <img src='__assets__/g2rpo.png'/>
 </div>
+Granular-GRPO: an online RL framework for precise and comprehensive reward assessments.
 
 ## 🔧 Installations
 
@@ -78,11 +73,18 @@ The environment dependency is the same as [DanceGRPO](https://github.com/XueZeyu
 
 ### Preprocess Data
 
-### Run Training
+### Training
 
-### Run Inference
+### Inference
 
-### Run Evaluation
+### Evaluation
+
+## 📎 Citation 
+
+If you find our work helpful for your research, please consider giving a star ⭐ and citation 📝 
+```bibtex
+
+```
 
 ## 💞 Acknowledgement
 The code is built upon the below repositories, we thank all the contributors for open-sourcing.
