@@ -13,8 +13,9 @@
 [Yibin Wang](https://codegoat24.github.io/),
 [Yuhang Zang](https://yuhangzang.github.io/),
 [Jiaqi Wang<sup>†</sup>](https://myownskyw7.github.io/),
-[Li Niu<sup>†</sup>](https://www.ustcnewly.com/)
-[Guangtao Zhai](https://faculty.sjtu.edu.cn/zhaiguangtao/en/index.htm/),
+[Li Niu<sup>†</sup>](https://www.ustcnewly.com/),
+[Guangtao Zhai](https://faculty.sjtu.edu.cn/zhaiguangtao/en/index.htm/)
+
 (*Equal Contribution)(<sup>†</sup>Corresponding Author)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2502.08590-b31b1b.svg)](https://github.com/bcmi/Granular-GRPO)
