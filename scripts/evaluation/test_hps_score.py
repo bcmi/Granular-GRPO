@@ -10,7 +10,7 @@ def initialize_model():
     model_dict = {}
     model, preprocess_train, preprocess_val = create_model_and_transforms(
         'ViT-H-14',
-        '/mnt/shared-storage-user/mllm/zhouyujie/CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin',
+        'ckpt/CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin',
         precision='amp',
         device=device,
         jit=False,
@@ -47,14 +47,14 @@ def main():
     model = model_dict['model']
     preprocess_val = model_dict['preprocess_val']
 
-    cp = "/mnt/shared-storage-user/mllm/zhouyujie/HPSv2/HPS_v2.1_compressed.pt"
+    cp = "ckpt/hps/HPS_v2.1_compressed.pt"
     checkpoint = torch.load(cp, map_location=device)
     model.load_state_dict(checkpoint['state_dict'])
     tokenizer = get_tokenizer('ViT-H-14')
     reward_model = model.to(device)
     reward_model.eval()
 
-    img_folder = "/mnt/shared-storage-user/zhouyujie/DanceGRPO/scripts/visualization/more_study_20/spo_v35/checkpoint-300-0"
+    img_folder = "IMAGE_SAVE_FOLDER"
     images, filenames = load_images_from_folder(img_folder)
 
     eval_rewards = []

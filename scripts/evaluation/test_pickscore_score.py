@@ -12,8 +12,9 @@ def initialize_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_dict = {}
 
-    process_path = "/mnt/shared-storage-user/mllm/zhouyujie/CLIP-ViT-H-14-laion2B-s32B-b79K"
-    model_path = "/mnt/shared-storage-user/mllm/zhouyujie/PickScore_v1"
+    process_path = "ckpt/CLIP-ViT-H-14-laion2B-s32B-b79K"
+    # download from https://huggingface.co/yuvalkirstain/PickScore_v1
+    model_path = "ckpt/PickScore_v1"
 
     processor = AutoProcessor.from_pretrained(process_path)
     reward_model = AutoModel.from_pretrained(model_path)
@@ -44,7 +45,7 @@ def main():
     reward_model = model.to(device)
     reward_model.eval()
 
-    img_folder = "/mnt/shared-storage-user/zhouyujie/DanceGRPO/scripts/visualization/more_study_20/spo_v35/checkpoint-300-0"
+    img_folder = "IMAGE_SAVE_FOLDER"
     images, filenames = load_images_from_folder(img_folder)
 
     eval_rewards = []

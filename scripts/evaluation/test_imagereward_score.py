@@ -11,13 +11,13 @@ import ImageReward as RM
 def initialize_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_dict = {}
-    model_path = "/mnt/shared-storage-user/mllm/zhouyujie/ImageReward/ImageReward.pt"
-    config_path = "/mnt/shared-storage-user/mllm/zhouyujie/ImageReward/med_config.json"
+    ## download from https://huggingface.co/zai-org/ImageReward
+    model_path = "ckpt/ImageReward/ImageReward.pt"
+    config_path = "ckpt/ImageReward/med_config.json"
     model = RM.load(model_path, device=device, med_config=config_path)
 
     return model, device
     
-
 def load_images_from_folder(folder):
     images = []
     filenames = []
@@ -35,13 +35,13 @@ def main():
     reward_model = model.to(device)
     reward_model.eval()
 
-    img_folder = "/mnt/shared-storage-user/zhouyujie/DanceGRPO/scripts/visualization/more_study_20/spo_v35/checkpoint-300-0"
+    img_folder = "IMAGE_SAVE_FOLDER"
     images, filenames = load_images_from_folder(img_folder)
 
     eval_rewards = []
     with torch.no_grad():
         for image_pil, filename in tqdm(zip(images, filenames), total=400):
-            prompt = os.path.splitext(filename)[0]  # 剔除文件扩展名
+            prompt = os.path.splitext(filename)[0]
             ## get score
             rewards = reward_model.score(prompt, image_pil)
 

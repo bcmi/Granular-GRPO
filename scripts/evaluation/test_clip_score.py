@@ -13,7 +13,7 @@ def initialize_model():
 
     processor = get_tokenizer('ViT-H-14')
     reward_model, preprocess_dgn5b = create_model_from_pretrained(
-        'local-dir:/mnt/shared-storage-user/mllm/zhouyujie/DFN5B-CLIP-ViT-H-14-384') 
+        'local-dir:ckpt/clip_score') 
     reward_model.to(device).eval()
     model_dict['model'] = reward_model
     model_dict['preprocess_val'] = preprocess_dgn5b
@@ -40,7 +40,7 @@ def main():
     reward_model = model.to(device)
     reward_model.eval()
 
-    img_folder = "/mnt/shared-storage-user/zhouyujie/DanceGRPO/scripts/visualization/more_study_20/spo_v35/checkpoint-300-0"
+    img_folder = "IMAGE_SAVE_FOLDER"
     images, filenames = load_images_from_folder(img_folder)
 
     eval_rewards = []
@@ -59,7 +59,6 @@ def main():
             clip_score = (clip_image_features @ clip_text_features.T)[0]
             clip_score = clip_score.item()
             eval_rewards.append(clip_score)
-
 
     avg_reward = sum(eval_rewards) / len(eval_rewards) if eval_rewards else 0
     print(f"Average CLIP score: {avg_reward:.4f}")

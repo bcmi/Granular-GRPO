@@ -63,25 +63,58 @@ The environment dependency is the same as [DanceGRPO](https://github.com/XueZeyu
 ## 🔑 Model Preparations
 
 ### 1. FLUX
+```bash
+# Download the FLUX.1-dev model.
+mkdir ./ckpt/flux
+huggingface-cli login
+huggingface-cli download --resume-download  black-forest-labs/FLUX.1-dev --local-dir ./ckpt/flux
+```
 
 ### 2. Reward Models
 
 #### HPS-v2.1
+```bash
+# Download the HPS reward model.
+python scripts/huggingface/download_hf.py --repo_id xswu/HPSv2 --local_dir ./ckpt/hps
 
-#### CLIP Score
+# Download the CLIP-ViT-H-14-laion2B-s32B-b79K.
+python scripts/huggingface/download_hf.py --repo_id laion/CLIP-ViT-H-14-laion2B-s32B-b79K --local_dir ./ckpt/CLIP-ViT-H-14-laion2B-s32B-b79K
+```
+
+#### CLIP_Score
+```bash
+# Download the CLIP_Score reward model.
+python scripts/huggingface/download_hf.py --repo_id apple/DFN5B-CLIP-ViT-H-14 --local_dir ./ckpt/clip_score
+```
 
 ## 🎈 Quick Start
 
 ### Preprocess Data
+```bash
+# Obtain the embeddings of the prompt dataset.
+bash scripts/preprocess/preprocess_flux_rl_embeddings.sh
+```
 
 ### Training
+```bash
+# Training with 16 GPUs for hps reward.
+bash scripts/finetune/finetune_g2rpo_hps.sh
+
+# Training with 16 GPUs for hps and clip_score reward.
+bash scripts/finetune/finetune_g2rpo_hps_clip.sh
+```
 
 ### Inference
+We provide our G2RPO ckpt at [Huggingface]()
+```bash
+# Download the G2RPO ckpt to 
 
-### Evaluation
+
+# inference
+python scripts/inference/infer.py
+```
 
 ## 📎 Citation 
-
 If you find our work helpful for your research, please consider giving a star ⭐ and citation 📝 
 ```bibtex
 
@@ -92,5 +125,6 @@ The code is built upon the below repositories, we thank all the contributors for
 
 * [DanceGRPO](https://github.com/XueZeyue/DanceGRPO)
 * [Flow-GRPO](https://github.com/yifan123/flow_grpo)
+* [MixGRPO](https://github.com/Tencent-Hunyuan/MixGRPO)
 * [FastVideo](https://github.com/hao-ai-lab/FastVideo)
 * [DDPO](https://github.com/kvablack/ddpo-pytorch)

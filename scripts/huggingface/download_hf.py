@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--repo_type",
         type=str,
+        default="model",
         help="The type of repository to download (dataset or model)",
     )
     parser.add_argument("--file_name",

@@ -7,9 +7,6 @@ from diffusers import FluxPipeline
 from diffusers import FluxTransformer2DModel
 from torch.utils.data import Dataset, DistributedSampler
 
-### 先生成图
-### 然后利用test_score测各个指标
-
 class PromptDataset(Dataset):
     def __init__(self, file_path):
         with open(file_path, 'r') as f:
@@ -36,17 +33,15 @@ def distributed_setup():
 
 def main():
     rank, local_rank, world_size = distributed_setup()
-
-    version = "spo_v35"
-    checkpoint = "checkpoint-300-0"
-    model_path = f"/mnt/shared-storage-user/zhouyujie/DanceGRPO/save_exp/{version}/ckpt/{checkpoint}"
-    flux_path = "/mnt/shared-storage-user/mllm/bujiazi/model_ckpts/models--black-forest-labs--FLUX.1-dev/snapshots/3de623fc3c33e44ffbe2bad470d0f45bccf2eb21"
+    
+    model_path = "CKPT_PATH"
+    flux_path = "./ckpt/flux"
 
     transformer = FluxTransformer2DModel.from_pretrained(model_path, use_safetensors=True, torch_dtype=torch.float16).to("cuda")
     pipe = FluxPipeline.from_pretrained(flux_path, transformer=None,  torch_dtype=torch.float16).to("cuda")
     pipe.transformer = transformer
 
-    dataset = PromptDataset("/mnt/shared-storage-user/zhouyujie/DanceGRPO/scripts/visualization/prompt_test.txt")
+    dataset = PromptDataset("scripts/evaluation/prompt_test.txt")
     sampler = DistributedSampler(
         dataset,
         num_replicas=world_size,
@@ -54,7 +49,7 @@ def main():
         shuffle=False
     )
 
-    output_dir = Path(f"./{version}/{checkpoint}")
+    output_dir = Path("IMAGE_SAVE_FOLDER")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for idx in sampler:
@@ -71,7 +66,6 @@ def main():
                 num_inference_steps=50,
                 max_sequence_length=512,
                 generator=generator,
-                
             ).images[0]
 
             filename = sanitize_filename(prompt)

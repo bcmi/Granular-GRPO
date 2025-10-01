@@ -1,5 +1,7 @@
 data
 HPSv2
 fastvideo.egg-info
+save_exp
+ckpt
 
 **/__pycache__/**

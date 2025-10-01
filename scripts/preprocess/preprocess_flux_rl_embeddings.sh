@@ -1,5 +1,5 @@
 GPU_NUM=8 # 2,4,8
-MODEL_PATH="/mnt/shared-storage-user/mllm/bujiazi/model_ckpts/models--black-forest-labs--FLUX.1-dev/snapshots/3de623fc3c33e44ffbe2bad470d0f45bccf2eb21"
+MODEL_PATH="./ckpt/flux"
 OUTPUT_DIR="data/rl_embeddings"
 
 torchrun --nproc_per_node=$GPU_NUM --master_port 19002 \

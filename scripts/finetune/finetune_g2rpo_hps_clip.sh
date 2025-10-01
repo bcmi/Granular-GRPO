@@ -1,7 +1,3 @@
-source /mnt/shared-storage-user/zhouyujie/.bashrc
-source activate dancegrpo
-cd /mnt/shared-storage-user/zhouyujie/DanceGRPO
-
 export NNODES=${NODE_COUNT:-2}
 export PROC_PER_NODE=${PROC_PER_NODE:-8}
 export MASTER_ADDR=${MASTER_ADDR}
@@ -11,10 +7,10 @@ export MASTER_PORT=29533
 torchrun --nnodes=2 --nproc_per_node=$PROC_PER_NODE --node_rank $NODE_RANK --master_addr $MASTER_ADDR --master_port $MASTER_PORT \
     fastvideo/train_g2rpo_hps_clip.py \
     --seed 42 \
-    --pretrained_model_name_or_path /mnt/shared-storage-user/mllm/bujiazi/model_ckpts/models--black-forest-labs--FLUX.1-dev/snapshots/3de623fc3c33e44ffbe2bad470d0f45bccf2eb21 \
-    --hps_path /mnt/shared-storage-user/mllm/zhouyujie/HPSv2/HPS_v2.1_compressed.pt \
-    --hps_clip_path /mnt/shared-storage-user/mllm/zhouyujie/CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin \
-    --clip_score_path  /mnt/shared-storage-user/mllm/zhouyujie/DFN5B-CLIP-ViT-H-14-384 \
+    --pretrained_model_name_or_path ckpt/flux \
+    --hps_path ckpt/hps/HPS_v2.1_compressed.pt \
+    --hps_clip_path ckpt/CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin \
+    --clip_score_path  ckpt/clip_score \
     --data_json_path data/rl_embeddings/videos2caption.json \
     --gradient_checkpointing \
     --train_batch_size 1 \
