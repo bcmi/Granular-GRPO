@@ -105,20 +105,22 @@ bash scripts/finetune/finetune_g2rpo_hps_clip.sh
 ```
 
 ### Inference
-We provide our G2RPO ckpt at [Huggingface]()
+We provide our G2RPO ckpt at [Huggingface](https://huggingface.co/yujieouo/G2RPO)
 ```bash
-# Download the G2RPO ckpt to 
-
+# Download the G2RPO ckpt
+mkdir ./ckpt/g2rpo
+huggingface-cli login
+huggingface-cli download --resume-download yujieouo/G2RPO diffusion_pytorch_model.safetensors --local-dir ./ckpt/g2rpo
 
 # inference
 python scripts/inference/infer.py
 ```
 
-## 📎 Citation 
+<!-- ## 📎 Citation 
 If you find our work helpful for your research, please consider giving a star ⭐ and citation 📝 
 ```bibtex
 
-```
+``` -->
 
 ## 💞 Acknowledgement
 The code is built upon the below repositories, we thank all the contributors for open-sourcing.
