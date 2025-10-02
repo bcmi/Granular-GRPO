@@ -27,7 +27,7 @@
 **[2025/10/2]** The paper and project page are released!
 
 ## 🏗️ Todo
-- [] Release a gradio demo.
+- [ ] Release a gradio demo.
 
 ## 📚 Gallery
 We show more results in the [Project Page](https://bujiazi.github.io/g2rpo.github.io/).
