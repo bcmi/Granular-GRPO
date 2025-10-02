@@ -1,14 +1,17 @@
 import torch
 from diffusers import FluxPipeline
 from diffusers import FluxTransformer2DModel
+from safetensors.torch import load_file
 
-model_path = "/mnt/shared-storage-user/zhouyujie/DanceGRPO/save_exp/spo_v35/ckpt/checkpoint-300-0"
-flux_path = "/mnt/shared-storage-user/mllm/bujiazi/model_ckpts/models--black-forest-labs--FLUX.1-dev/snapshots/3de623fc3c33e44ffbe2bad470d0f45bccf2eb21"
 device = "cuda:0"
 
-transformer = FluxTransformer2DModel.from_pretrained(model_path, use_safetensors=True, torch_dtype=torch.float16).to(device)
-pipe = FluxPipeline.from_pretrained(flux_path, transformer=None,  torch_dtype=torch.float16).to(device)
-pipe.transformer = transformer
+model_path = "ckpt/g2rpo/diffusion_pytorch_model.safetensors"
+flux_path = "ckpt/flux"
+
+pipe = FluxPipeline.from_pretrained(flux_path, use_safetensors=True,  torch_dtype=torch.float16)
+model_state_dict = load_file(model_path)
+pipe.transformer.load_state_dict(model_state_dict, strict=True)
+pipe = pipe.to(device)
 
 prompt = "A golden Labrador retriever is leaping excitedly on the green grass, chasing a soap bubble that glows with a rainbow in the sun, National Geographic photography style"
 

@@ -74,7 +74,7 @@ def flow_grpo_step(
     sigma = sigmas[index].to(device)
     sigma_prev = sigmas[index + 1].to(device)
     sigma_max = sigmas[1].item()
-    dt = sigma_prev - sigma # neg dt
+    dt = sigma_prev - sigma
 
     pred_original_sample = latents - sigma * model_output
  
@@ -97,10 +97,8 @@ def flow_grpo_step(
         - torch.log(torch.sqrt(2 * torch.as_tensor(math.pi)))
     )
 
-    # mean along all but batch dimension
     log_prob = log_prob.mean(dim=tuple(range(1, log_prob.ndim)))
 
-    ## x_t-1, pred_x0, logp(x_t-1)
     return prev_sample, pred_original_sample, log_prob
 
 
@@ -303,7 +301,7 @@ def get_pred(
                 device=latents.device,
                 dtype=torch.bfloat16
             ),
-            txt_ids=text_ids.repeat(encoder_hidden_states.shape[1],1), # B, L
+            txt_ids=text_ids.repeat(encoder_hidden_states.shape[1],1),
             pooled_projections=pooled_prompt_embeds,
             img_ids=image_ids.squeeze(0),
             joint_attention_kwargs=None,
@@ -620,7 +618,7 @@ def train_one_step(
             preprocess_val_2,
         )
 
-    batch_size = all_input_latents.shape[0] ## 12
+    batch_size = all_input_latents.shape[0]
     device = all_input_latents.device
     train_sigma_schedule = sigma_schedule.clone()[args.eta_step_list]
     timestep_value = [int(sigma * 1000) for sigma in train_sigma_schedule][:args.sampling_steps]
@@ -700,12 +698,12 @@ def train_one_step(
 
     for t_idx in range(train_timesteps):
 
-        lat_0   = samples["latents"][0, t_idx].unsqueeze(0)         # [1, 2025, 64]
-        t_0     = samples["timesteps"][0, t_idx].unsqueeze(0)       # [1]
-        enc_0   = samples["encoder_hidden_states"][0].unsqueeze(0)  # [1, 512, 4096]
-        pooled  = samples["pooled_prompt_embeds"][0].unsqueeze(0)   # [1, 768]
-        text_0  = samples["text_ids"][0].unsqueeze(0)               # [1, 3]
-        image_0 = samples["image_ids"][0].unsqueeze(0)              # [1, 2025, 3]
+        lat_0   = samples["latents"][0, t_idx].unsqueeze(0)         
+        t_0     = samples["timesteps"][0, t_idx].unsqueeze(0)       
+        enc_0   = samples["encoder_hidden_states"][0].unsqueeze(0)  
+        pooled  = samples["pooled_prompt_embeds"][0].unsqueeze(0)  
+        text_0  = samples["text_ids"][0].unsqueeze(0)              
+        image_0 = samples["image_ids"][0].unsqueeze(0)           
 
         pred = get_pred(args, lat_0, enc_0, pooled, text_0, image_0, transformer, t_0) 
         pred_batch = pred.repeat(args.num_generations, 1, 1)
@@ -955,7 +953,6 @@ def main(args):
 
                 dist.barrier()
 
-            ## 核心
             loss, grad_norm = train_one_step(
                 args,
                 device, 

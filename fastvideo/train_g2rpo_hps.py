@@ -100,7 +100,6 @@ def flow_grpo_step(
     # mean along all but batch dimension
     log_prob = log_prob.mean(dim=tuple(range(1, log_prob.ndim)))
 
-    ## x_t-1, pred_x0, logp(x_t-1)
     return prev_sample, pred_original_sample, log_prob
 
 
@@ -585,7 +584,7 @@ def train_one_step(
             preprocess_val,
         )
 
-    batch_size = all_input_latents.shape[0] ## 12
+    batch_size = all_input_latents.shape[0]
     device = all_input_latents.device
     train_sigma_schedule = sigma_schedule.clone()[args.eta_step_list]
     timestep_value = [int(sigma * 1000) for sigma in train_sigma_schedule][:args.sampling_steps]
@@ -638,19 +637,19 @@ def train_one_step(
 
     for t_idx in range(train_timesteps):
 
-        lat_0   = samples["latents"][0, t_idx].unsqueeze(0)         # [1, 2025, 64]
-        t_0     = samples["timesteps"][0, t_idx].unsqueeze(0)       # [1]
-        enc_0   = samples["encoder_hidden_states"][0].unsqueeze(0)  # [1, 512, 4096]
-        pooled  = samples["pooled_prompt_embeds"][0].unsqueeze(0)   # [1, 768]
-        text_0  = samples["text_ids"][0].unsqueeze(0)               # [1, 3]
-        image_0 = samples["image_ids"][0].unsqueeze(0)              # [1, 2025, 3]
+        lat_0   = samples["latents"][0, t_idx].unsqueeze(0)         
+        t_0     = samples["timesteps"][0, t_idx].unsqueeze(0)       
+        enc_0   = samples["encoder_hidden_states"][0].unsqueeze(0)  
+        pooled  = samples["pooled_prompt_embeds"][0].unsqueeze(0)   
+        text_0  = samples["text_ids"][0].unsqueeze(0)               
+        image_0 = samples["image_ids"][0].unsqueeze(0)              
 
         pred = get_pred(args, lat_0, enc_0, pooled, text_0, image_0, transformer, t_0) 
         pred_batch = pred.repeat(args.num_generations, 1, 1)
 
         z, pred_original, new_log_probs = flow_grpo_step(
-            pred_batch, ## torch.Size([12, 2025, 64])
-            samples["latents"][:, t_idx].float(),   # [12, 2025, 64]
+            pred_batch, 
+            samples["latents"][:, t_idx].float(), 
             args.eta,
             sigma_schedule,
             args.eta_step_list[t_idx],
@@ -887,7 +886,6 @@ def main(args):
 
                 dist.barrier()
 
-            ## 核心
             loss, grad_norm = train_one_step(
                 args,
                 device, 

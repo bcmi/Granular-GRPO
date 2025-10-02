@@ -19,18 +19,18 @@
 (*Equal Contribution)(<sup>†</sup>Corresponding Author)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2502.08590-b31b1b.svg)](https://github.com/bcmi/Granular-GRPO)
-[![Project Page](https://img.shields.io/badge/Project-Website-green)](https://github.com/bcmi/Granular-GRPO)
+[![Project Page](https://img.shields.io/badge/Project-Website-green)](https://bujiazi.github.io/g2rpo.github.io/)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-red)](https://github.com/bcmi/Granular-GRPO)
 
 ## 📜 News
 
-**[2025/9/30]** The paper and project page are released!
+**[2025/10/2]** The paper and project page are released!
 
 ## 🏗️ Todo
 - [] Release a gradio demo.
 
 ## 📚 Gallery
-We show more results in the [Project Page](https://github.com/bcmi/Granular-GRPO).
+We show more results in the [Project Page](https://bujiazi.github.io/g2rpo.github.io/).
 
 ## 🚀 Method Overview
 
