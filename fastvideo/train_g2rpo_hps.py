@@ -942,21 +942,18 @@ if __name__ == "__main__":
 
     parser.add_argument("--pretrained_model_name_or_path",
         type=str, 
-        default="/mnt/shared-storage-user/mllm/bujiazi/model_ckpts/models--black-forest-labs--FLUX.1-dev/snapshots/3de623fc3c33e44ffbe2bad470d0f45bccf2eb21"
     )
 
     ## reward model path
     parser.add_argument(
         "--hps_path",
         type=str,
-        default="/mnt/shared-storage-user/mllm/zhouyujie/HPSv2/HPS_v2.1_compressed.pt",
         help="path to load hps reward model",
     )
 
     parser.add_argument(
         "--hps_clip_path",
         type=str,
-        default='/mnt/shared-storage-user/mllm/zhouyujie/CLIP-ViT-H-14-laion2B-s32B-b79K/open_clip_pytorch_model.bin',
         help="path to load hps clip model",
     )
 
