@@ -25,6 +25,7 @@
 ## 📜 News
 
 **[2025/10/3]** Code is available now!
+
 **[2025/10/2]** The paper and project page have been released!
 
 ## 🏗️ Todo
