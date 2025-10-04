@@ -24,7 +24,7 @@
 
 ## 📜 News
 
-**[2025/10/2]** The paper and project page are released!
+**[2025/10/2]** The paper and project page have been released!
 
 ## 🏗️ Todo
 - [ ] Release a gradio demo.
