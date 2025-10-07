@@ -118,7 +118,7 @@ huggingface-cli download --resume-download yujieouo/G2RPO diffusion_pytorch_mode
 python scripts/inference/infer.py
 ```
 
-📎 Citation 
+##📎 Citation 
 If you find our work helpful for your research, please consider giving a star ⭐ and citation 📝 
 ```bibtex
 @article{zhou2025text,
