@@ -121,7 +121,7 @@ python scripts/inference/infer.py
 ## 📎 Citation 
 If you find our work helpful for your research, please consider giving a star ⭐ and citation 📝 
 ```bibtex
-@article{zhou2025text,
+@article{zhou2025g2rpo,
   title={G$^2$RPO: Granular GRPO for Precise Reward in Flow Models},
   author={Zhou, Yujie and Ling, Pengyang and Bu, Jiazi and Wang, Yibin and Zang, Yuhang and Wang, Jiaqi and Niu, Li and Zhai, Guangtao},
   journal={arXiv preprint arXiv:2510.01982},
