@@ -20,7 +20,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-2510.01982-b31b1b.svg)](https://arxiv.org/abs/2510.01982)
 [![Project Page](https://img.shields.io/badge/Project-Website-green)](https://bujiazi.github.io/g2rpo.github.io/)
-[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-red)](https://github.com/bcmi/Granular-GRPO)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-red)](https://huggingface.co/yujieouo/G2RPO)
 
 ## 📜 News
 
