@@ -15,4 +15,4 @@ pip install -e .
 
 pip install ml-collections absl-py inflect==6.0.4 pydantic==1.10.9 huggingface_hub==0.24.0 protobuf==3.20.0 accelerate
 
-pip install opencv-python-headless, open-clip-torch
+pip install opencv-python-headless open-clip-torch
