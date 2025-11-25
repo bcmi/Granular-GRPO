@@ -1,4 +1,4 @@
-# Granular-GRPO
+# Fine-Grained GRPO for Precise Preference Alignment in Flow Models
 
 <details><summary>Click for the full abstract</summary>
 
