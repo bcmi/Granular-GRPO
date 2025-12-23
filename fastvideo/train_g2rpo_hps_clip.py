@@ -729,23 +729,23 @@ def train_one_step(
             1.0 - clip_range,
             1.0 + clip_range,
         )
-        loss = torch.mean(torch.maximum(unclipped_loss, clipped_loss))
+        loss = torch.mean(torch.maximum(unclipped_loss, clipped_loss)) / train_timesteps
 
         loss.backward()
         avg_loss = loss.detach().clone()
         dist.all_reduce(avg_loss, op=dist.ReduceOp.AVG)
         total_loss += avg_loss.item()
 
-        grad_norm = transformer.clip_grad_norm_(max_grad_norm)
-        optimizer.step()
-        lr_scheduler.step()
-        optimizer.zero_grad()
+    grad_norm = transformer.clip_grad_norm_(max_grad_norm)
+    optimizer.step()
+    lr_scheduler.step()
+    optimizer.zero_grad()
 
-        if dist.get_rank() % 8 == 0:
-            print("ratio", ratio)
-            print("advantage", advantages)
-            print("final loss", loss.item())
-        dist.barrier()
+    if dist.get_rank() % 8 == 0:
+        print("ratio", ratio)
+        print("advantage", advantages)
+        print("final loss", loss.item())
+    dist.barrier()
 
     return total_loss, grad_norm.item()
 
