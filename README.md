@@ -121,14 +121,11 @@ python scripts/inference/infer.py
 ## 📎 Citation 
 If you find our work helpful for your research, please consider giving a star ⭐ and citation 📝 
 ```bibtex
-@misc{zhou2025finegrainedgrpoprecisepreference,
-      title={Fine-Grained GRPO for Precise Preference Alignment in Flow Models}, 
-      author={Yujie Zhou and Pengyang Ling and Jiazi Bu and Yibin Wang and Yuhang Zang and Jiaqi Wang and Li Niu and Guangtao Zhai},
-      year={2025},
-      eprint={2510.01982},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2510.01982}, 
+@article{zhou2025fine,
+  title={Fine-Grained GRPO for Precise Preference Alignment in Flow Models},
+  author={Zhou, Yujie and Ling, Pengyang and Bu, Jiazi and Wang, Yibin and Zang, Yuhang and Wang, Jiaqi and Niu, Li and Zhai, Guangtao},
+  journal={arXiv preprint arXiv:2510.01982},
+  year={2025}
 }
 ```
 
