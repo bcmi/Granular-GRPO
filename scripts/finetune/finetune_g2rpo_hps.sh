@@ -18,7 +18,7 @@ torchrun --nnodes=2 --nproc_per_node=$PROC_PER_NODE --node_rank $NODE_RANK --mas
     --train_sp_batch_size 1 \
     --dataloader_num_workers 4 \
     --max_train_steps 301 \
-    --learning_rate 5e-6 \
+    --learning_rate 2e-6 \
     --mixed_precision bf16 \
     --checkpointing_steps 50 \
     --cfg 0.0 \

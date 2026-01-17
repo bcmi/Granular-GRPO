@@ -74,7 +74,7 @@ def flow_grpo_step(
     sigma = sigmas[index].to(device)
     sigma_prev = sigmas[index + 1].to(device)
     sigma_max = sigmas[1].item()
-    dt = sigma_prev - sigma # neg dt
+    dt = sigma_prev - sigma
 
     pred_original_sample = latents - sigma * model_output
  
@@ -97,7 +97,6 @@ def flow_grpo_step(
         - torch.log(torch.sqrt(2 * torch.as_tensor(math.pi)))
     )
 
-    # mean along all but batch dimension
     log_prob = log_prob.mean(dim=tuple(range(1, log_prob.ndim)))
 
     return prev_sample, pred_original_sample, log_prob
@@ -302,7 +301,7 @@ def get_pred(
                 device=latents.device,
                 dtype=torch.bfloat16
             ),
-            txt_ids=text_ids.repeat(encoder_hidden_states.shape[1],1), # B, L
+            txt_ids=text_ids.repeat(encoder_hidden_states.shape[1],1),
             pooled_projections=pooled_prompt_embeds,
             img_ids=image_ids.squeeze(0),
             joint_attention_kwargs=None,
@@ -323,6 +322,8 @@ def sample_reference_model(
     tokenizer,
     caption,
     preprocess_val,
+    reward_model_2,
+    preprocess_val_2,
 ):
     w, h, t = args.w, args.h, args.t
     granular_list = args.granular_list
@@ -349,9 +350,11 @@ def sample_reference_model(
     all_output_latents = []
     all_log_probs = []
     all_rewards = [[] for _ in range(granular_nums)]
-    all_image_ids = []
+    all_rewards_2 = [[] for _ in range(granular_nums)]
 
+    all_image_ids = []
     eval_rewards = []
+    eval_rewards_2 = []
 
     if args.init_same_noise:
         input_latents = torch.randn(
@@ -370,6 +373,7 @@ def sample_reference_model(
         grpo_sample = True
 
         step_rewards = [[] for _ in range(granular_nums)]
+        step_rewards_2 = [[] for _ in range(granular_nums)]
         step_input_latents = []
         step_output_latents = []
         step_log_probs = []
@@ -381,7 +385,7 @@ def sample_reference_model(
 
         with torch.no_grad():
             if index % args.num_generations == 0:
-                progress_bar = tqdm(range(0, sample_steps), desc="Get Anchor Progress")
+                progress_bar = tqdm(range(0, sample_steps), desc="Anchor Progress")
                 input_latents_new = pack_latents(input_latents, len(batch_idx), IN_CHANNELS, latent_h, latent_w)
                 
                 eval_latents, anchor_latents = run_anchor_sample_step(
@@ -404,10 +408,13 @@ def sample_reference_model(
                         eval_latents = (eval_latents / 0.3611) + 0.1159
                         eval_image = vae.decode(eval_latents, return_dict=False)[0]
                         decoded_eval_image = image_processor.postprocess(eval_image)
-    
+
+                ## eval reward
                 with torch.no_grad():
                     image_pil = decoded_eval_image[0]
                     image = preprocess_val(image_pil).unsqueeze(0).to(device=device, non_blocking=True)
+                    image_2 = preprocess_val_2(image_pil).unsqueeze(0).to(device=device, non_blocking=True)
+
                     text = tokenizer([batch_caption[0]]).to(device=device, non_blocking=True)
 
                     with torch.amp.autocast('cuda'):
@@ -416,7 +423,15 @@ def sample_reference_model(
                         logits_per_image = image_features @ text_features.T
                         hps_score = torch.diagonal(logits_per_image)
 
+                        ## clip score
+                        clip_image_features = reward_model_2.encode_image(image_2)
+                        clip_text_features = reward_model_2.encode_text(text)
+                        clip_image_features = F.normalize(clip_image_features, dim=-1)
+                        clip_text_features = F.normalize(clip_text_features, dim=-1)
+                        clip_score = (clip_image_features @ clip_text_features.T)[0]
+
                     eval_rewards.append(hps_score)
+                    eval_rewards_2.append(clip_score)
 
             for eta_step in args.eta_step_list:
                 input_sde_sample = anchor_latents[:, eta_step]
@@ -459,6 +474,7 @@ def sample_reference_model(
                     )
 
                     dense_rewards_j = []
+                    dense_rewards_j_2 = []
 
                     with torch.inference_mode():
                         with torch.autocast("cuda", dtype=torch.bfloat16):
@@ -467,14 +483,11 @@ def sample_reference_model(
                             image_j = vae.decode(latents_j, return_dict=False)[0]
                             decoded_image_j = image_processor.postprocess(image_j)
 
-                    image_save_folder = os.path.join(args.output_dir, f"samping_data_{g}")
-                    os.makedirs(image_save_folder, exist_ok=True)
-                    image_path = os.path.join(image_save_folder, f"id_{index}.png")
-                    decoded_image_j[0].save(image_path)
-
                     with torch.no_grad():
                         image_pil_j = decoded_image_j[0]
                         image_j = preprocess_val(image_pil_j).unsqueeze(0).to(device=device, non_blocking=True)
+                        image_j_2 = preprocess_val_2(image_pil_j).unsqueeze(0).to(device=device, non_blocking=True)
+
                         text = tokenizer([batch_caption[0]]).to(device=device, non_blocking=True)
 
                         with torch.amp.autocast('cuda'):
@@ -483,17 +496,30 @@ def sample_reference_model(
                             logits_per_image = image_features @ text_features.T
                             hps_score = torch.diagonal(logits_per_image)
 
+                            ## clip score
+                            clip_image_features = reward_model_2.encode_image(image_j_2)
+                            clip_text_features = reward_model_2.encode_text(text)
+                            clip_image_features = F.normalize(clip_image_features, dim=-1)
+                            clip_text_features = F.normalize(clip_text_features, dim=-1)
+                            clip_score = (clip_image_features @ clip_text_features.T)[0]
+
                         dense_rewards_j.append(hps_score)
+                        dense_rewards_j_2.append(clip_score)
 
                     step_rewards[j].append(torch.cat(dense_rewards_j, dim=0))
+                    step_rewards_2[j].append(torch.cat(dense_rewards_j_2, dim=0))
 
                 step_input_latents.append(batch_latents[:, 0])
                 step_output_latents.append(batch_latents[:, 1])
                 step_log_probs.append(batch_log_probs[:, 0])
 
         for j in range(granular_nums):
+            ## hps
             step_rewards[j] = torch.stack(step_rewards[j], dim=1)
             all_rewards[j].append(step_rewards[j])
+            ## clip
+            step_rewards_2[j] = torch.stack(step_rewards_2[j], dim=1)
+            all_rewards_2[j].append(step_rewards_2[j])
 
         all_input_latents.append(torch.stack(step_input_latents, dim=1))
         all_output_latents.append(torch.stack(step_output_latents, dim=1))
@@ -507,10 +533,13 @@ def sample_reference_model(
 
     for j in range(granular_nums):
         all_rewards[j] = torch.cat(all_rewards[j], dim=0).to(torch.float32)
+        all_rewards_2[j] = torch.cat(all_rewards_2[j], dim=0).to(torch.float32)
 
     eval_rewards = torch.cat(eval_rewards, dim=0).to(torch.float32)
+    eval_rewards_2 = torch.cat(eval_rewards_2, dim=0).to(torch.float32)
+    all_eval_rewards = [eval_rewards, eval_rewards_2]
 
-    return all_rewards, all_input_latents, all_output_latents, all_log_probs, sigma_schedule, all_image_ids, eval_rewards
+    return all_rewards, all_rewards_2, all_input_latents, all_output_latents, all_log_probs, sigma_schedule, all_image_ids, all_eval_rewards
     
 
 def gather_tensor(tensor):
@@ -534,6 +563,8 @@ def train_one_step(
     noise_scheduler,
     max_grad_norm,
     preprocess_val,
+    reward_model_2,
+    preprocess_val_2,
 ):
     total_loss = 0.0
     optimizer.zero_grad()
@@ -564,12 +595,13 @@ def train_one_step(
 
     (
         all_rewards,
+        all_rewards_2,
         all_input_latents, 
         all_output_latents, 
         all_log_probs, 
         sigma_schedule, 
         all_image_ids, 
-        all_eval_rewards
+        all_eval_rewards,
      ) = sample_reference_model(
             args,
             device, 
@@ -582,6 +614,8 @@ def train_one_step(
             tokenizer,
             caption,
             preprocess_val,
+            reward_model_2,
+            preprocess_val_2,
         )
 
     batch_size = all_input_latents.shape[0]
@@ -597,23 +631,33 @@ def train_one_step(
         "latents": all_input_latents,
         "next_latents": all_output_latents,
         "log_probs": all_log_probs,
-        "all_rewards": all_rewards,
+        "all_rewards": all_rewards, ## hps
+        "all_rewards_2": all_rewards_2, ## clip
         "image_ids": all_image_ids,
         "text_ids": text_ids,
         "encoder_hidden_states": encoder_hidden_states,
         "pooled_prompt_embeds": pooled_prompt_embeds,
     }
 
-    gathered_reward = gather_tensor(all_eval_rewards)
+    gathered_reward_hps = gather_tensor(all_eval_rewards[0])
+    gathered_reward_clip = gather_tensor(all_eval_rewards[1])
+
     # eval 
     if dist.get_rank()==0:
-        print("gathered_hps_reward", gathered_reward)
+        print("gathered_hps_reward", gathered_reward_hps)
         reward_path = os.path.join(args.output_dir, "hps_reward.txt")
         with open(reward_path, 'a') as f: 
-            f.write(f"{gathered_reward.mean().item()}\n")
+            f.write(f"{gathered_reward_hps.mean().item()}\n")
+
+        print("gathered_clip_reward", gathered_reward_clip)
+        reward_path = os.path.join(args.output_dir, "clip_reward.txt")
+        with open(reward_path, 'a') as f: 
+            f.write(f"{gathered_reward_clip.mean().item()}\n")
 
     n = len(samples["pooled_prompt_embeds"]) // (args.num_generations)
-    advantages = torch.zeros_like(samples["all_rewards"][0])
+
+    ## hps
+    hps_advantages = torch.zeros_like(samples["all_rewards"][0])
 
     for rewards in samples["all_rewards"]:
         group_advantages = torch.zeros_like(rewards)
@@ -627,9 +671,26 @@ def train_one_step(
 
             group_advantages[start_idx:end_idx] = (group_rewards - group_mean) / group_std
 
-        advantages += group_advantages
+        hps_advantages += group_advantages
 
-    samples["advantages"] = advantages
+    ## clip
+    clip_advantages = torch.zeros_like(samples["all_rewards_2"][0])
+
+    for rewards in samples["all_rewards_2"]:
+        group_advantages = torch.zeros_like(rewards)
+        for i in range(n):
+            start_idx = i * args.num_generations
+            end_idx = (i + 1) * args.num_generations
+
+            group_rewards = rewards[start_idx:end_idx]
+            group_mean = group_rewards.mean(dim=0)
+            group_std = group_rewards.std(dim=0) + 1e-8
+
+            group_advantages[start_idx:end_idx] = (group_rewards - group_mean) / group_std
+
+        clip_advantages += group_advantages
+
+    samples["advantages"] = hps_advantages + clip_advantages
 
     train_timesteps = int(len(samples["timesteps"][0]))
     clip_range = args.clip_range
@@ -640,15 +701,15 @@ def train_one_step(
         lat_0   = samples["latents"][0, t_idx].unsqueeze(0)         
         t_0     = samples["timesteps"][0, t_idx].unsqueeze(0)       
         enc_0   = samples["encoder_hidden_states"][0].unsqueeze(0)  
-        pooled  = samples["pooled_prompt_embeds"][0].unsqueeze(0)   
-        text_0  = samples["text_ids"][0].unsqueeze(0)               
-        image_0 = samples["image_ids"][0].unsqueeze(0)              
+        pooled  = samples["pooled_prompt_embeds"][0].unsqueeze(0)  
+        text_0  = samples["text_ids"][0].unsqueeze(0)              
+        image_0 = samples["image_ids"][0].unsqueeze(0)           
 
         pred = get_pred(args, lat_0, enc_0, pooled, text_0, image_0, transformer, t_0) 
         pred_batch = pred.repeat(args.num_generations, 1, 1)
 
         z, pred_original, new_log_probs = flow_grpo_step(
-            pred_batch, 
+            pred_batch,
             samples["latents"][:, t_idx].float(), 
             args.eta,
             sigma_schedule,
@@ -668,23 +729,23 @@ def train_one_step(
             1.0 - clip_range,
             1.0 + clip_range,
         )
-        loss = torch.mean(torch.maximum(unclipped_loss, clipped_loss)) / train_timesteps
+        loss = torch.mean(torch.maximum(unclipped_loss, clipped_loss))
 
         loss.backward()
         avg_loss = loss.detach().clone()
         dist.all_reduce(avg_loss, op=dist.ReduceOp.AVG)
         total_loss += avg_loss.item()
 
-    grad_norm = transformer.clip_grad_norm_(max_grad_norm)
-    optimizer.step()
-    lr_scheduler.step()
-    optimizer.zero_grad()
+        grad_norm = transformer.clip_grad_norm_(max_grad_norm)
+        optimizer.step()
+        lr_scheduler.step()
+        optimizer.zero_grad()
 
-    if dist.get_rank() % 8 == 0:
-        print("ratio", ratio)
-        print("advantage", advantages)
-        print("final loss", loss.item())
-    dist.barrier()
+        if dist.get_rank() % 8 == 0:
+            print("ratio", ratio)
+            print("advantage", advantages)
+            print("final loss", loss.item())
+        dist.barrier()
 
     return total_loss, grad_norm.item()
 
@@ -751,8 +812,14 @@ def main(args):
     reward_model = model.to(device)
     reward_model.eval()
 
-    main_print(f"--> loading model from {args.pretrained_model_name_or_path}")
-    # keep the master weight to float32
+    ## clip score
+    from open_clip import create_model_from_pretrained
+    clip_model, clip_preprocess_val = create_model_from_pretrained(
+        f'local-dir:{args.clip_score_path}') 
+
+    reward_model_2 = clip_model.to(device)
+    reward_model_2.eval()
+    preprocess_val_2 = clip_preprocess_val
     
     transformer = FluxTransformer2DModel.from_pretrained(
             args.pretrained_model_name_or_path,
@@ -899,7 +966,10 @@ def main(args):
                 noise_scheduler,
                 args.max_grad_norm,
                 preprocess_val,
+                reward_model_2,
+                preprocess_val_2,
             )
+
             step_time = time.time() - start_time
             step_times.append(step_time)
             avg_step_time = sum(step_times) / len(step_times)
@@ -940,8 +1010,9 @@ if __name__ == "__main__":
         help="number of latent frames",
     )
 
-    parser.add_argument("--pretrained_model_name_or_path",
+    parser.add_argument("--pretrained_model_name_or_path", 
         type=str, 
+        default="ckpt/flux"
     )
 
     ## reward model path
@@ -955,6 +1026,12 @@ if __name__ == "__main__":
         "--hps_clip_path",
         type=str,
         help="path to load hps clip model",
+    )
+
+    parser.add_argument(
+        "--clip_score_path",
+        type=str,
+        help="path to load clip score reward model"
     )
 
     # diffusion setting
@@ -974,8 +1051,12 @@ if __name__ == "__main__":
         "--checkpointing_steps",
         type=int,
         default=500,
+        help=(
+            "Save a checkpoint of the training state every X updates. These checkpoints can be used both as final"
+            " checkpoints in case they are better than the last checkpoint, and are also suitable for resuming"
+            " training using `--resume_from_checkpoint`."
+        ),
     )
-
     # optimizer & scheduler & Training
     parser.add_argument(
         "--max_train_steps",
@@ -1131,7 +1212,6 @@ if __name__ == "__main__":
         default=5.0,
         help="clipping advantage",
     )
-
     parser.add_argument(
         "--eta_step_list",
         nargs='+', 
@@ -1139,7 +1219,6 @@ if __name__ == "__main__":
         help="A list of integers for eta steps.",
         default=[1]
     )
-
     parser.add_argument(
         "--granular_list",
         nargs='+', 
