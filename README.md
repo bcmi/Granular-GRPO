@@ -24,7 +24,7 @@
 
 ## 📜 News
 
-**[2025/10/3]** Happy to announce that Granular-GRPO is accepted by CVPR 2026!
+**[2026/2/21]** Happy to announce that Granular-GRPO is accepted by CVPR 2026!
 
 **[2025/10/3]** Code is available now!
 
