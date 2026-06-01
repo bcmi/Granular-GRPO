@@ -123,11 +123,13 @@ python scripts/inference/infer.py
 ## 📎 Citation 
 If you find our work helpful for your research, please consider giving a star ⭐ and citation 📝 
 ```bibtex
-@article{zhou2025fine,
-  title={Fine-Grained GRPO for Precise Preference Alignment in Flow Models},
-  author={Zhou, Yujie and Ling, Pengyang and Bu, Jiazi and Wang, Yibin and Zang, Yuhang and Wang, Jiaqi and Niu, Li and Zhai, Guangtao},
-  journal={arXiv preprint arXiv:2510.01982},
-  year={2025}
+@InProceedings{Zhou_2026_CVPR,
+    author    = {Zhou, Yujie and Ling, Pengyang and Bu, Jiazi and Wang, Yibin and Zang, Yuhang and Wang, Jiaqi and Niu, Li and Zhai, Guangtao},
+    title     = {Fine-Grained GRPO for Precise Preference Alignment in Flow Models},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2026},
+    pages     = {20045-20054}
 }
 ```
 
